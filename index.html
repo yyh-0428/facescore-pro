@@ -141,7 +141,6 @@ h1 .thin{font-weight:300;color:var(--ink-2);}
 .detail-title::before,.detail-title::after{content:'';width:24px;height:1px;background:var(--border);}
 .detail-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;}
 .detail-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:14px 12px;transition:all 0.25s;opacity:0;transform:translateY(12px);overflow:hidden;position:relative;}
-.detail-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:16px 16px 0 0;opacity:0.6;}
 .detail-card.in{animation:featIn 0.4s ease forwards;}
 .detail-card:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,0,0,0.06);}
 .detail-header{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
@@ -266,7 +265,6 @@ h1 .thin{font-weight:300;color:var(--ink-2);}
 
   <!-- Mode switch -->
   <div class="action-row" style="margin-bottom:16px;">
-    <button class="btn-outline" id="modeUpload">📁 上传照片</button>
     <button class="btn-outline" id="modeCamera">📷 摄像头</button>
     <button class="btn-outline" id="modeSample">🖼️ 示例</button>
   </div>
@@ -512,12 +510,12 @@ function setImage(src) {
 }
 
 // ============ Mode switch ============
-$('modeUpload').onclick = () => {
+function showUploadMode() {
   cameraSection.classList.remove('active');
   sampleRow.style.display = 'none';
   $('uploadRow').style.display = '';
   stopCamera();
-};
+}
 $('modeCamera').onclick = () => {
   cameraSection.classList.add('active');
   sampleRow.style.display = 'none';
@@ -538,14 +536,14 @@ async function startCamera() {
     $('cameraVideo').srcObject = cameraStream;
   } catch (e) {
     showError('无法访问摄像头，请检查权限设置');
-    $('modeUpload').click();
+    showUploadMode();
   }
 }
 function stopCamera() {
   if (cameraStream) { cameraStream.getTracks().forEach(t => t.stop()); cameraStream = null; }
 }
 $('switchCam').onclick = () => { facingMode = facingMode === 'user' ? 'environment' : 'user'; stopCamera(); startCamera(); };
-$('stopCam').onclick = () => { stopCamera(); $('modeUpload').click(); };
+$('stopCam').onclick = () => { stopCamera(); showUploadMode(); };
 $('captureBtn').onclick = () => {
   if (!cameraStream) return;
   const v = $('cameraVideo');
@@ -554,7 +552,7 @@ $('captureBtn').onclick = () => {
   c.getContext('2d').drawImage(v, 0, 0);
   setImage(c.toDataURL('image/jpeg', 0.9));
   stopCamera();
-  $('modeUpload').click();
+  showUploadMode();
 };
 
 // ============ Samples ============
